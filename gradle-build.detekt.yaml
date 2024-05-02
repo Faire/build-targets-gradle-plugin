@@ -1,0 +1,20 @@
+FaireRuleSet:
+  PreventBannedImports:
+    active: true
+    autoCorrect: true
+    # Reminder: add relevant entries to .idea/codeInsightSettings.xml, too,
+    # so IntelliJ does not suggest them in autocomplete.
+    withAlternatives:
+      - com.github.jgonian.ipmath.Optional=java.util.Optional
+      - com.google.common.base.Optional=java.util.Optional
+
+      - jakarta.ws.rs=javax.ws.rs
+      - java.lang.Integer.max=kotlin.math.max
+      - java.lang.Integer.min=kotlin.math.min
+      - java.lang.long.max=kotlin.math.max
+      - java.lang.long.min=kotlin.math.min
+      - net.bytebuddy.dynamic.DynamicType.Builder.FieldDefinition.Optional=java.util.Optional
+      - net.bytebuddy.dynamic.DynamicType.Builder.MethodDefinition.ImplementationDefinition.Optional=java.util.Optional
+      - net.bytebuddy.dynamic.DynamicType.Builder.RecordComponentDefinition.Optional=java.util.Optional
+      - org.apache.commons.lang.time.StopWatch=com.google.common.base.Stopwatch
+      - org.apache.http.HttpHeaders=com.google.common.net.HttpHeaders

@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: '/'
+    schedule:
+      interval: daily
+      time: "10:00"
+      timezone: Canada/Eastern
+    labels:
+      - dependencies
+      - rubber-stamp
+
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: daily
+      time: "10:00"
+      timezone: Canada/Eastern
+    labels:
+      - dependencies
+      - rubber-stamp

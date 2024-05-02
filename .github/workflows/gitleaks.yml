@@ -1,0 +1,27 @@
+name: gitleaks
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  scan:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Faire/secrets-detector
+          ssh-key: ${{ secrets.SECRETS_DETECTOR_SSH_KEY }}
+          ref: main
+          path: ./github/secrets-action
+
+      - name: Run private action
+        uses: ./github/secrets-action
+        with:
+          access-token: ${{ secrets.GITHUB_TOKEN }}
+

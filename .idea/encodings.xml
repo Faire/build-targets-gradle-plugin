@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <!--
+  By default, IntelliJ interprets *.properties files as being encoded using ISO 8859-1. This is an issue because
+  strings_en.properties, etc. use characters with different encodings in UTF-8 and ISO 8859-1 (characters with accents,
+  emoji, etc.). If you use IntelliJ to add one of these characters to a properties file, it may cause Java to treat the
+  entire file as if it’s ISO 8859-1. This can lead to weird test errors (e.g. org.junit.ComparisonFailure).
+  https://www.jetbrains.com/help/idea/properties-files.html#encoding
+  -->
+  <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8" />
+</project>

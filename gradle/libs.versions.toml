@@ -1,0 +1,39 @@
+[versions]
+
+assertj = "3.26.0"
+
+detekt = "1.23.6"
+
+gradle-better-testing = "0.0.5"
+
+junit-jupiter = "5.10.2"
+junit-platform = "1.10.2"
+
+kotlin = "2.0.0"
+
+[libraries]
+
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
+detekt-kotlin-compiler-wrapper = { module = "com.braisgabin.detekt:kotlin-compiler-wrapper", version = "0.0.4" }
+
+faire-detekt-rules = { module = "com.github.Faire:faire-detekt-rules", version = "v0.2.1" }
+
+gson = { module = "com.google.code.gson:gson", version = "2.11.0" }
+
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
+
+navatwo-gradle-better-testing-junit5 = { module = "net.navatwo.gradle:gradle-plugin-better-testing-junit5", version.ref = "gradle-better-testing" }
+navatwo-gradle-better-testing-asserts = { module = "net.navatwo.gradle:gradle-plugin-better-testing-assertj-asserts", version.ref = "gradle-better-testing" }
+
+pluginz-detekt = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+
+pluginz-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+
+[plugins]
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+
+dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version = "1.32.0" }

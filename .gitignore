@@ -1,0 +1,75 @@
+*.iml
+.DS_Store
+
+# for files/dirs used in CI that shouldn't appear in git diffs
+/.ci/
+
+bin/
+target/
+logs/
+**/out/
+
+npm-debug.log
+dependency-reduced-pom.xml
+
+build/
+.gradle/
+.kotlin/
+
+.terraform/
+*.hprof*
+hs_err_pid*.log
+
+# python virtualenv
+.venv
+
+## VS Code gitignore
+.classpath
+.project
+.settings/
+
+protos/ios-protos/
+
+## Opt out everything in .idea by default
+**/.idea/**
+
+## Opt certain .idea files back in
+!**/.idea/codeInsightSettings.xml
+!**/.idea/encodings.xml
+!**/.idea/kotlinc.xml
+# We need to unksip the directoy in order to unskip its contents.
+# Don't use ** here so that people can have their own templates.
+!**/.idea/fileTemplates
+# Do NOT add contain slashes at the end as we want both the directories AND everything within.
+# Git doc: "It is not possible to re-include a file if a parent directory of that file is excluded."
+!**/.idea/codeStyles**
+!**/.idea/inspectionProfiles**
+!**/.idea/runConfigurations**
+!**/.idea/icon.svg
+
+# Python
+__pycache__/
+
+# Node
+node_modules/
+
+# local enviroment variables file
+.env
+
+#Jetbrains Fleet
+.fleet/
+
+# Cockroach DB
+cockroach-data/
+
+# don't check in appdash cli creds
+appdash-cookies.json
+
+.focus
+.focusGitBase
+.focusProjects
+.focusProjects.yaml
+.focusPlayground/
+
+# don't check in product area attribution files
+**/.productarea.yml

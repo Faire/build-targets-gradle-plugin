@@ -1,0 +1,38 @@
+name: "CI"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions: read-all
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version-file: .java-version
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Compile classes
+        run: ./gradlew classes testClasses --continue
+
+      - name: Lint
+        run: ./gradlew detektMain detektTest --continue
+
+      - name: Check
+        run: ./gradlew check --continue
+
+      - name: Verify Dependencies
+        run: ./gradlew buildHealth
