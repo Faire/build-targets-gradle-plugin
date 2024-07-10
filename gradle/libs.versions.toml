@@ -1,6 +1,6 @@
 [versions]
 
-assertj = "3.26.0"
+assertj = "3.26.3"
 
 detekt = "1.23.6"
 
