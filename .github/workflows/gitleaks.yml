@@ -15,13 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: Faire/secrets-detector
-          ssh-key: ${{ secrets.SECRETS_DETECTOR_SSH_KEY }}
-          ref: main
-          path: ./github/secrets-action
-
-      - name: Run private action
-        uses: ./github/secrets-action
-        with:
-          access-token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
 
