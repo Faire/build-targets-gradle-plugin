@@ -16,10 +16,10 @@ if (!providers.environmentVariable("RELEASE").isPresent) {
         providers.exec { commandLine("git", "rev-parse", "--short", "HEAD") }
           .standardOutput
           .asText
-          .map { it.trim().take(10) }
           .get()
       },
     )
+    .map { it.trim().take(10) }
     .get()
 
   version = "$version-$gitSha-SNAPSHOT"
