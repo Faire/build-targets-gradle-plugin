@@ -30,6 +30,8 @@ navatwo-gradle-better-testing-asserts = { module = "net.navatwo.gradle:gradle-pl
 
 pluginz-detekt = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 
+pluginz-gradle-plugin-publish = { module = "com.gradle.publish:plugin-publish-plugin", version = "1.2.1" }
+
 pluginz-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
 [plugins]
