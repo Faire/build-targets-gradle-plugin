@@ -8,6 +8,23 @@ plugins {
 group = "com.faire.gradle"
 version = "0.0.0"
 
+if (!providers.environmentVariable("RELEASE").isPresent) {
+  val gitSha = providers.environmentVariable("GITHUB_SHA")
+    .orElse(
+      provider {
+        // nest the provider, we don't want to invalidate the config cache for this
+        providers.exec { commandLine("git", "rev-parse", "--short", "HEAD") }
+          .standardOutput
+          .asText
+          .map { it.trim() }
+          .get()
+      },
+    )
+    .get()
+
+  version = "$version-$gitSha-SNAPSHOT"
+}
+
 dependencies {
   api(kotlin("stdlib"))
 
