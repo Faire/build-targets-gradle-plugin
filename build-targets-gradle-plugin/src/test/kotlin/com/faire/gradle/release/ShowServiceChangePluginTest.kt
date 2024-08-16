@@ -280,9 +280,7 @@ internal class ShowServiceChangePluginTest {
     gitCommitAll(root, "'delete resources: $project'")
   }
 
-  private fun getCommitHash(root: File): String {
-    return git(root, "show-ref", "-s")
-  }
+  private fun getCommitHash(root: File): String = git(root, "show-ref", "-s")
 
   private fun git(root: File, vararg command: String): String {
     val process = ProcessBuilder()
