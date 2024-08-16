@@ -42,7 +42,8 @@ gradlePlugin {
   plugins {
     create("faire.build-targets") {
       id = "com.faire.build-targets"
-      displayName = "Show the impacted targets for a project"
+      displayName = "faire.build-targets"
+      description = "Show the impacted targets for a project"
       implementationClass = "com.faire.gradle.release.ShowBuildTargetsForChangePlugin"
       tags = listOf("ci", "continuous-integration", "merge-queue", "release")
     }
