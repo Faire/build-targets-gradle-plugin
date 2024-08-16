@@ -9,6 +9,7 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
@@ -52,7 +53,7 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
   // If this is too slow in the future, we can consider making this task run _per project_ and do a map-reduce
   // style to collect the results of this task per project within the `ShowServiceChangeStatusTask`. This would
   // parallelize this, letting it run "faster" in the future.
-  @Internal
+  @Input
   val projectToSourceDirectories: MapProperty<String, Set<File>> = objects.mapProperty<String, Set<File>>()
       .value(
           project.provider {
@@ -60,6 +61,9 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
                 .collect(Collectors.toMap({ it.path }, ::computeWatchedFiles))
           },
       )
+      .apply {
+        finalizeValueOnRead()
+      }
 
   @TaskAction
   fun execute() {
@@ -82,11 +86,11 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
   private fun computeWatchedFiles(project: Project): Set<File> {
     // Collect all the directories/files that we know are part of each project's compilation. We use
     // directories for source files to reduce the number of entries in this set.
+    val buildDir = project.layout.buildDirectory.get().asFile.toPath()
     val sourceDirectories = project.the<JavaPluginExtension>().sourceSets
-        .flatMap { it.allSource.sourceDirectories.files }
         .asSequence()
-        .filter { "/build/" !in it.path }
-        .filter { it.exists() }
+        .flatMap { it.allSource.sourceDirectories.files }
+        .filter { f -> !f.toPath().startsWith(buildDir) }
 
     val buildKts = project.layout.projectDirectory.file("build.gradle.kts").asFile
 

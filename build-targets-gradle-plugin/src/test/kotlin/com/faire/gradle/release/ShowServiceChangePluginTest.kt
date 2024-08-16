@@ -195,6 +195,43 @@ internal class ShowServiceChangePluginTest {
     assertProjectStatuses(root.resolve(outputDirectory), project1 = false, project2 = false)
   }
 
+  @Test
+  @GradleProject("basic-service-hierarchy")
+  fun `emptying a folder does not throw`(
+      @GradleProject.Runner runner: GradleRunner,
+      @GradleProject.Root root: File,
+      @TempDir outputDirectory: File,
+  ) {
+    gitInit(root)
+
+    runner
+        .withArguments(
+          SHOW_BUILD_TARGETS_TASK,
+            "--outputDirectory",
+            outputDirectory.toString(),
+        )
+        .withDebug(true)
+        .build()
+
+    val initialResourcesHash = getCommitHash(root)
+
+    updateAndCommitNewResourcesToProject(root, "dependency-project")
+    removeAndCommitResourcesToProject(root, "dependency-project")
+
+    val deletedResourcesHash = getCommitHash(root)
+
+    // verify does not throw
+    runner
+        .withArguments(
+          SHOW_BUILD_TARGETS_TASK,
+            "--outputDirectory",
+            outputDirectory.toString(),
+            "--currentCommitRef=$deletedResourcesHash",
+            "--previousCommitRef=$initialResourcesHash",
+        )
+        .build()
+  }
+
   private fun assertProjectStatuses(outputDirectory: File, project1: Boolean, project2: Boolean) {
     assertThat(outputDirectory)
         .isDirectoryContaining("glob:**.status")
@@ -228,7 +265,26 @@ internal class ShowServiceChangePluginTest {
     gitCommitAll(root, "'change project: $project'")
   }
 
-  private fun git(root: File, vararg command: String) {
+  private fun updateAndCommitNewResourcesToProject(root: File, project: String) {
+    with(root.resolve("$project/src/main/resources/test.txt")) {
+      parentFile.mkdirs()
+      writeText("Test file content")
+    }
+
+    gitCommitAll(root, "'change add resource: $project'")
+  }
+
+  private fun removeAndCommitResourcesToProject(root: File, project: String) {
+    root.resolve("$project/src/main/resources").deleteRecursively()
+
+    gitCommitAll(root, "'delete resources: $project'")
+  }
+
+  private fun getCommitHash(root: File): String {
+    return git(root, "show-ref", "-s")
+  }
+
+  private fun git(root: File, vararg command: String): String {
     val process = ProcessBuilder()
         .directory(root)
         .command("git", *command)
@@ -238,7 +294,12 @@ internal class ShowServiceChangePluginTest {
         .`as` { "Failed to execute: `git ${command.joinToString(" ")}` in $root" }
         .isTrue()
 
-    assertThat(process.exitValue()).`as` { "Failed to execute: `git ${command.joinToString(" ")}` in $root" }
+    val output = process.inputReader().use { it.readText().trim() }
+
+    assertThat(process.exitValue())
+        .`as` { "Failed to execute: `git ${command.joinToString(" ")}` in $root:\n$output" }
         .isZero()
+
+    return output
   }
 }

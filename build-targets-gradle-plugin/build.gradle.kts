@@ -15,7 +15,7 @@ dependencies {
   implementation(libs.gson)
 
   // only use junit plugin
-  testRuntimeOnly(project(":test-fixtures"))
+  testRuntimeOnly(testFixtures(project(":test-fixtures")))
 }
 
 gradlePlugin {

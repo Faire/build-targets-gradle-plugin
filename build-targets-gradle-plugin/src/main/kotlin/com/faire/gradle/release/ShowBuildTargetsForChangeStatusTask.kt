@@ -117,6 +117,7 @@ internal abstract class ShowBuildTargetsForChangeStatusTask @Inject constructor(
             "log",
             "--oneline",
             "${previousCommitRef.get()}..${currentCommitRef.get()}",
+            "--", // add paths separator
         )
 
         args(pathsToDiff)

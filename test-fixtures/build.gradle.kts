@@ -1,11 +1,12 @@
 plugins {
   `kotlin-dsl`
   id("faire.kotlin")
+  `java-test-fixtures`
 }
 
 dependencies {
-  implementation(gradleTestKit())
+  testFixturesImplementation(gradleTestKit())
 
-  implementation(libs.junit.jupiter.api)
-  implementation(libs.navatwo.gradle.better.testing.junit5)
+  testFixturesImplementation(libs.junit.jupiter.api)
+  testFixturesImplementation(libs.navatwo.gradle.better.testing.junit5)
 }
