@@ -30,6 +30,7 @@ java {
 dependencies {
   implementation(libs.pluginz.detekt)
   implementation(libs.pluginz.kotlin)
+  implementation(libs.pluginz.gradle.plugin.publish)
 
   testImplementation(gradleTestKit())
 

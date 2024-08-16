@@ -2,6 +2,8 @@ plugins {
   id("faire.kotlin")
 
   `java-gradle-plugin`
+
+  id("com.gradle.plugin-publish")
 }
 
 val libs = rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
