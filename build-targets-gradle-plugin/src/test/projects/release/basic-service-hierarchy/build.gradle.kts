@@ -1,6 +1,6 @@
 plugins {
   alias(libs.plugins.kotlin) apply false
-  id("faire.build-targets")
+  id("com.faire.build-targets")
 }
 
 allprojects {

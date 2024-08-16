@@ -1,5 +1,5 @@
 plugins {
-  id("faire.build-targets")
+  id("com.faire.build-targets")
   kotlin("jvm")
   application
 }

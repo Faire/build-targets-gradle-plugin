@@ -12,7 +12,7 @@ In the root `build.gradle.kts` file, apply the plugin:
 
 ```kotlin
 plugins {
-  id("faire.build-targets") version "1.0.+"
+  id("com.faire.build-targets") version "1.0.+"
 }
 ```
 
