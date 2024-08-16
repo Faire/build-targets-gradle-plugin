@@ -5,6 +5,7 @@ plugins {
 }
 
 dependencies {
+  testFixturesImplementation(kotlin("stdlib"))
   testFixturesImplementation(gradleTestKit())
 
   testFixturesImplementation(libs.junit.jupiter.api)
