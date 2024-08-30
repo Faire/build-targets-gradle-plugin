@@ -38,4 +38,4 @@ pluginz-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
-dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version = "1.33.0" }
+dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version = "2.0.1" }
