@@ -104,7 +104,7 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
         .asSequence()
         .flatMap { it.allSource.sourceDirectories.files }
         .filter { f -> !f.toPath().startsWith(buildDir) }
-        .filter { f -> !sourceSetPathExcludePatterns.get().any { f.path.matches(it) } }
+        .filter { f -> sourceSetPathExcludePatterns.get().none { f.path.matches(it) } }
 
     val buildKts = project.layout.projectDirectory.file("build.gradle.kts").asFile
 

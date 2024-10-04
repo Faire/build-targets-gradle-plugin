@@ -246,16 +246,18 @@ internal class ShowServiceChangePluginTest {
           """
           
           showBuildTargets {
-            sourceExcludePatterns.add(".+/src/[\\w+\\-_]+/resources/?.*")
+            sourceSetPathExcludePatterns.add(".+/src/main/?.*")
           }
         """.trimIndent(),
       )
     }
 
+    gitCommitAll(root, "update root build")
+
     val initialResourcesHash = getCommitHash(root)
 
-    updateAndCommitNewResourcesToProject(root, "dependency-project")
-    updateAndCommitNewResourcesToProject(root, "dependency-project-2")
+    updateAndCommitNewFolderToProject(root, "main/kotlin", "dependency-project")
+    updateAndCommitNewFolderToProject(root, "main/kotlin", "dependency-project-2")
 
     val addedResourcesHash = getCommitHash(root)
 
@@ -324,6 +326,15 @@ internal class ShowServiceChangePluginTest {
     root.resolve("$project/src/main/resources").deleteRecursively()
 
     gitCommitAll(root, "'delete resources: $project'")
+  }
+
+  private fun updateAndCommitNewFolderToProject(root: File, folderName: String, project: String) {
+    with(root.resolve("$project/src/$folderName/test.txt")) {
+      parentFile.mkdirs()
+      writeText("Test file content")
+    }
+
+    gitCommitAll(root, "'change add resource: $project'")
   }
 
   private fun getCommitHash(root: File): String = git(root, "show-ref", "-s")
