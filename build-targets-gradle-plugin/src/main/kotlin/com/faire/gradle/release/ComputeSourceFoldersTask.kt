@@ -8,6 +8,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
@@ -17,6 +18,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.mapProperty
+import org.gradle.kotlin.dsl.setProperty
 import org.gradle.kotlin.dsl.the
 import java.io.File
 import java.util.stream.Collectors
@@ -38,6 +40,17 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
           project.rootProject.layout.projectDirectory.asFileTree.filter {
             it.name == "build.gradle.kts" &&
                 "/test/" !in it.path // exclude test projects
+          },
+      )
+
+  /**
+   * Patterns to use to exclude source files from consideration.
+   */
+  @Input
+  val sourceSetPathExcludePatterns: SetProperty<Regex> = objects.setProperty<Regex>()
+      .convention(
+          project.rootProject.the<ShowBuildTargetsForChangeExtension>().sourceSetPathExcludePatterns.map { patterns ->
+            patterns.map { Regex(it) }.toSet()
           },
       )
 
@@ -91,6 +104,7 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
         .asSequence()
         .flatMap { it.allSource.sourceDirectories.files }
         .filter { f -> !f.toPath().startsWith(buildDir) }
+        .filter { f -> sourceSetPathExcludePatterns.get().none { f.path.matches(it) } }
 
     val buildKts = project.layout.projectDirectory.file("build.gradle.kts").asFile
 
