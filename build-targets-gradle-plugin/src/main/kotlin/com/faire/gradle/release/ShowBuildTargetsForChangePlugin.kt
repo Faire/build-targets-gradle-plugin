@@ -6,6 +6,7 @@ package com.faire.gradle.release
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.annotations.VisibleForTesting
@@ -41,6 +42,8 @@ class ShowBuildTargetsForChangePlugin : Plugin<Project> {
           projectDependencyPathsFile = computeRuntimeClasspathDependentProjects.flatMap { it.dependentProjectsListFile }
         }
       }
+    } else {
+      rootProject.extensions.create("showBuildTargets", ShowBuildTargetsForChangeExtension::class)
     }
   }
 
