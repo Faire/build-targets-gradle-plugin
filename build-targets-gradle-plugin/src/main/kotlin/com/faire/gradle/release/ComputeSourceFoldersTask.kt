@@ -47,7 +47,7 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
    * Patterns to use to exclude source files from consideration.
    */
   @Input
-  internal val sourceSetPathExcludePatterns: SetProperty<Regex> = objects.setProperty<Regex>()
+  val sourceSetPathExcludePatterns: SetProperty<Regex> = objects.setProperty<Regex>()
       .convention(
           project.rootProject.the<ShowBuildTargetsForChangeExtension>().sourceSetPathExcludePatterns.map { patterns ->
             patterns.map { Regex(it) }.toSet()
