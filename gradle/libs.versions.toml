@@ -2,7 +2,7 @@
 
 assertj = "3.26.3"
 
-detekt = "1.23.6"
+detekt = "1.23.7"
 
 gradle-better-testing = "0.0.5"
 

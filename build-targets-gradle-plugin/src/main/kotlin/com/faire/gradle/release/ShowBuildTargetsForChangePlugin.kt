@@ -47,14 +47,10 @@ class ShowBuildTargetsForChangePlugin : Plugin<Project> {
     }
   }
 
-  companion object {
-    @VisibleForTesting
-    internal const val COMPUTE_SOURCE_FOLDERS_TASK = "computeSourceFolders"
-
-    @VisibleForTesting
-    internal const val SHOW_BUILD_TARGETS_TASK = "showBuildTargetsForChange"
-
-    @VisibleForTesting
-    internal const val COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK = "computeRuntimeClasspathDependentProjects"
+  @VisibleForTesting
+  internal companion object {
+    const val COMPUTE_SOURCE_FOLDERS_TASK = "computeSourceFolders"
+    const val SHOW_BUILD_TARGETS_TASK = "showBuildTargetsForChange"
+    const val COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK = "computeRuntimeClasspathDependentProjects"
   }
 }
