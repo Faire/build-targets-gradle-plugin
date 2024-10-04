@@ -248,7 +248,7 @@ internal class ShowServiceChangePluginTest {
           showBuildTargets {
             sourceExcludePatterns.add(".+/src/[\\w+\\-_]+/resources/?.*")
           }
-        """.trimIndent()
+        """.trimIndent(),
       )
     }
 

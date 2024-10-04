@@ -51,7 +51,7 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
       .convention(
           project.rootProject.the<ShowBuildTargetsForChangeExtension>().sourceSetPathExcludePatterns.map { patterns ->
             patterns.map { Regex(it) }.toSet()
-          }
+          },
       )
 
   @OutputFile
