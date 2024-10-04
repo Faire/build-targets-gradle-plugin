@@ -9,8 +9,8 @@ import javax.inject.Inject
  * Provides extensions for configuring the plugin.
  */
 open class ShowBuildTargetsForChangeExtension @Inject constructor(
-  objects: ObjectFactory,
-){
+    objects: ObjectFactory,
+) {
   /**
    * Regex patterns to **exclude** source set folders. If **any** pattern is matched, a source is excluded.
    *

@@ -29,38 +29,38 @@ import javax.inject.Inject
  */
 @CacheableTask
 internal abstract class ComputeSourceFoldersTask @Inject constructor(
-  objects: ObjectFactory,
+    objects: ObjectFactory,
 ) : DefaultTask() {
 
   @Suppress("UNUSED") // This is an input to the task, acting as a proxy for figuring out source files.
   @InputFiles
   @PathSensitive(PathSensitivity.RELATIVE)
   val buildFiles: ConfigurableFileCollection = objects.fileCollection()
-    .from(
-      project.rootProject.layout.projectDirectory.asFileTree.filter {
-        it.name == "build.gradle.kts" &&
-            "/test/" !in it.path // exclude test projects
-      },
-    )
+      .from(
+          project.rootProject.layout.projectDirectory.asFileTree.filter {
+            it.name == "build.gradle.kts" &&
+                "/test/" !in it.path // exclude test projects
+          },
+      )
 
   /**
    * Patterns to use to exclude source files from consideration.
    */
   @Input
   internal val sourceSetPathExcludePatterns: SetProperty<Regex> = objects.setProperty<Regex>()
-    .convention(
-      project.rootProject.the<ShowBuildTargetsForChangeExtension>().sourceSetPathExcludePatterns.map { patterns ->
-        patterns.map { Regex(it) }.toSet()
-      }
-    )
+      .convention(
+          project.rootProject.the<ShowBuildTargetsForChangeExtension>().sourceSetPathExcludePatterns.map { patterns ->
+            patterns.map { Regex(it) }.toSet()
+          }
+      )
 
   @OutputFile
   val jsonFile: RegularFileProperty = objects.fileProperty()
-    .convention(project.layout.buildDirectory.file("faire-release/sourceFolders.json"))
+      .convention(project.layout.buildDirectory.file("faire-release/sourceFolders.json"))
 
   @Internal
   val rootProjectDirectory: DirectoryProperty = objects.directoryProperty()
-    .convention(project.rootProject.layout.projectDirectory)
+      .convention(project.rootProject.layout.projectDirectory)
 
   // Done this way to avoid using this in the implementation, making it configuration-cache safe.
   // If this is too slow in the future, we can consider making this task run _per project_ and do a map-reduce
@@ -68,15 +68,15 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
   // parallelize this, letting it run "faster" in the future.
   @Input
   val projectToSourceDirectories: MapProperty<String, Set<File>> = objects.mapProperty<String, Set<File>>()
-    .value(
-      project.provider {
-        project.rootProject.subprojects.parallelStream()
-          .collect(Collectors.toMap({ it.path }, ::computeWatchedFiles))
-      },
-    )
-    .apply {
-      finalizeValueOnRead()
-    }
+      .value(
+          project.provider {
+            project.rootProject.subprojects.parallelStream()
+                .collect(Collectors.toMap({ it.path }, ::computeWatchedFiles))
+          },
+      )
+      .apply {
+        finalizeValueOnRead()
+      }
 
   @TaskAction
   fun execute() {
@@ -88,9 +88,9 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
     val rootDirectory = rootProjectDirectory.asFile.get()
 
     val json = gson.toJson(
-      projectToSourceDirectories.get().mapValues { (_, files) ->
-        files.map { it.relativeTo(rootDirectory).path }
-      },
+        projectToSourceDirectories.get().mapValues { (_, files) ->
+          files.map { it.relativeTo(rootDirectory).path }
+        },
     )
 
     outputFile.writeText(json)
@@ -101,10 +101,10 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
     // directories for source files to reduce the number of entries in this set.
     val buildDir = project.layout.buildDirectory.get().asFile.toPath()
     val sourceDirectories = project.the<JavaPluginExtension>().sourceSets
-      .asSequence()
-      .flatMap { it.allSource.sourceDirectories.files }
-      .filter { f -> !f.toPath().startsWith(buildDir) }
-      .filter { f -> !sourceSetPathExcludePatterns.get().any { f.path.matches(it) } }
+        .asSequence()
+        .flatMap { it.allSource.sourceDirectories.files }
+        .filter { f -> !f.toPath().startsWith(buildDir) }
+        .filter { f -> !sourceSetPathExcludePatterns.get().any { f.path.matches(it) } }
 
     val buildKts = project.layout.projectDirectory.file("build.gradle.kts").asFile
 
