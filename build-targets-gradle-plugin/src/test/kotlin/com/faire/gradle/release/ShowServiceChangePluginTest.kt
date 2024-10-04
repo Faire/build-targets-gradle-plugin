@@ -206,11 +206,10 @@ internal class ShowServiceChangePluginTest {
 
     runner
         .withArguments(
-          SHOW_BUILD_TARGETS_TASK,
+            SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
             outputDirectory.toString(),
         )
-        .withDebug(true)
         .build()
 
     val initialResourcesHash = getCommitHash(root)
@@ -223,13 +222,62 @@ internal class ShowServiceChangePluginTest {
     // verify does not throw
     runner
         .withArguments(
-          SHOW_BUILD_TARGETS_TASK,
+            SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
             outputDirectory.toString(),
             "--currentCommitRef=$deletedResourcesHash",
             "--previousCommitRef=$initialResourcesHash",
         )
         .build()
+  }
+
+  @Test
+  @GradleProject("basic-service-hierarchy")
+  fun `changing an excluded project file does not affect project files`(
+      @GradleProject.Runner runner: GradleRunner,
+      @GradleProject.Root root: File,
+      @TempDir outputDirectory: File,
+  ) {
+    gitInit(root)
+
+    // Ignore the `src/resources` folder
+    with(root.resolve("build.gradle.kts")) {
+      appendText(
+          """
+          
+          showBuildTargets {
+            sourceSetPathExcludePatterns.add(".+/src/main/?.*")
+          }
+        """.trimIndent(),
+      )
+    }
+
+    gitCommitAll(root, "update root build")
+
+    val initialResourcesHash = getCommitHash(root)
+
+    updateAndCommitNewFolderToProject(root, "main/kotlin", "dependency-project")
+    updateAndCommitNewFolderToProject(root, "main/kotlin", "dependency-project-2")
+
+    val addedResourcesHash = getCommitHash(root)
+
+    val result = runner
+        .withArguments(
+            SHOW_BUILD_TARGETS_TASK,
+            "--outputDirectory",
+            outputDirectory.toString(),
+            "--currentCommitRef=$addedResourcesHash",
+            "--previousCommitRef=$initialResourcesHash",
+        )
+        .build()
+
+    assertThat(result).task(":$COMPUTE_SOURCE_FOLDERS_TASK").isSuccess()
+    assertThat(result).task(":service-project:$COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK").isSuccess()
+    assertThat(result).task(":service-project:$SHOW_BUILD_TARGETS_TASK").isSuccess()
+    assertThat(result).task(":service-project-2:$COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK").isSuccess()
+    assertThat(result).task(":service-project-2:$SHOW_BUILD_TARGETS_TASK").isSuccess()
+
+    assertProjectStatuses(root.resolve(outputDirectory), project1 = false, project2 = false)
   }
 
   private fun assertProjectStatuses(outputDirectory: File, project1: Boolean, project2: Boolean) {
@@ -278,6 +326,15 @@ internal class ShowServiceChangePluginTest {
     root.resolve("$project/src/main/resources").deleteRecursively()
 
     gitCommitAll(root, "'delete resources: $project'")
+  }
+
+  private fun updateAndCommitNewFolderToProject(root: File, folderName: String, project: String) {
+    with(root.resolve("$project/src/$folderName/test.txt")) {
+      parentFile.mkdirs()
+      writeText("Test file content")
+    }
+
+    gitCommitAll(root, "'change add resource: $project'")
   }
 
   private fun getCommitHash(root: File): String = git(root, "show-ref", "-s")
