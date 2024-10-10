@@ -9,7 +9,7 @@ gradle-better-testing = "0.0.5"
 junit-jupiter = "5.11.0"
 junit-platform = "1.10.2"
 
-kotlin = "2.0.10"
+kotlin = "2.0.21"
 
 [libraries]
 
