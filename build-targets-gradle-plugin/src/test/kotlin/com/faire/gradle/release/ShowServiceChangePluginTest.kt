@@ -7,7 +7,6 @@ import net.navatwo.gradle.testkit.assertj.task
 import net.navatwo.gradle.testkit.junit5.GradleProject
 import net.navatwo.gradle.testkit.junit5.GradleTestKitConfiguration
 import net.navatwo.gradle.testkit.junit5.GradleTestKitConfiguration.BuildDirectoryMode.PRISTINE
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
@@ -57,7 +56,6 @@ internal class ShowServiceChangePluginTest {
     assertThat(secondResult).task(":service-project-2:$SHOW_BUILD_TARGETS_TASK").isUpToDate()
 
     assertProjectStatuses(outputDirectory, project1 = false, project2 = false)
-
   }
 
   @Test
