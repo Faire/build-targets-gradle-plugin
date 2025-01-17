@@ -6,6 +6,7 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.SetProperty
@@ -70,7 +71,9 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
   val projectToSourceDirectories: MapProperty<String, Set<File>> = objects.mapProperty<String, Set<File>>()
       .value(
           project.provider {
-            project.rootProject.subprojects.parallelStream()
+            project.rootProject.subprojects
+                .filter { it.plugins.hasPlugin(JavaPlugin::class.java) }
+                .parallelStream()
                 .collect(Collectors.toMap({ it.path }, ::computeWatchedFiles))
           },
       )
