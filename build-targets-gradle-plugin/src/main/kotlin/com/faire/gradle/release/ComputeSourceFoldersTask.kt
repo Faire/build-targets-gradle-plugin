@@ -63,6 +63,24 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
   val rootProjectDirectory: DirectoryProperty = objects.directoryProperty()
       .convention(project.rootProject.layout.projectDirectory)
 
+  // Done this way to avoid using this in the implementation, making it configuration-cache safe.
+  // If this is too slow in the future, we can consider making this task run _per project_ and do a map-reduce
+  // style to collect the results of this task per project within the `ShowServiceChangeStatusTask`. This would
+  // parallelize this, letting it run "faster" in the future.
+  @Input
+  val projectToSourceDirectories: MapProperty<String, Set<File>> = objects.mapProperty<String, Set<File>>()
+      .value(
+          project.provider {
+            project.rootProject.subprojects
+                .filter { it.plugins.hasPlugin(JavaPlugin::class.java) }
+                .parallelStream()
+                .collect(Collectors.toMap({ it.path }, ::computeWatchedFiles))
+          },
+      )
+      .apply {
+        finalizeValueOnRead()
+      }
+
   @TaskAction
   fun execute() {
     val outputFile = jsonFile.asFile.get().apply {
@@ -72,13 +90,8 @@ internal abstract class ComputeSourceFoldersTask @Inject constructor(
     val gson = GsonUtils.gson
     val rootDirectory = rootProjectDirectory.asFile.get()
 
-    val projectToSourceDirectories =  project.rootProject.subprojects
-        .filter { it.plugins.hasPlugin(JavaPlugin::class.java) }
-        .parallelStream()
-        .collect(Collectors.toMap({ it.path }, ::computeWatchedFiles))
-
     val json = gson.toJson(
-        projectToSourceDirectories.mapValues { (_, files) ->
+        projectToSourceDirectories.get().mapValues { (_, files) ->
           files.map { it.relativeTo(rootDirectory).path }
         },
     )

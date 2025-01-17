@@ -7,7 +7,9 @@ import net.navatwo.gradle.testkit.assertj.task
 import net.navatwo.gradle.testkit.junit5.GradleProject
 import net.navatwo.gradle.testkit.junit5.GradleTestKitConfiguration
 import net.navatwo.gradle.testkit.junit5.GradleTestKitConfiguration.BuildDirectoryMode.PRISTINE
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
+import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -35,6 +37,7 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
+            "--configuration-cache",
             outputDirectory.toString(),
             "--stacktrace",
         )
@@ -46,6 +49,7 @@ internal class ShowServiceChangePluginTest {
     assertThat(result).task(":service-project-2:$SHOW_BUILD_TARGETS_TASK").isSuccess()
 
     assertProjectStatuses(outputDirectory, project1 = false, project2 = false)
+    assertConfigurationCacheStored(result)
 
     val secondResult = runner.build()
     assertThat(secondResult).task(":service-project:$COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK").isUpToDate()
@@ -54,6 +58,7 @@ internal class ShowServiceChangePluginTest {
     assertThat(secondResult).task(":service-project-2:$SHOW_BUILD_TARGETS_TASK").isUpToDate()
 
     assertProjectStatuses(outputDirectory, project1 = false, project2 = false)
+
   }
 
   @Test
@@ -70,9 +75,11 @@ internal class ShowServiceChangePluginTest {
             SHOW_BUILD_TARGETS_TASK,
             "--stacktrace",
             "--outputDirectory",
+            "--configuration-cache",
             outputDirectory.toString(),
         )
         .build()
+    assertConfigurationCacheStored(result)
 
     assertThat(result).task(":$COMPUTE_SOURCE_FOLDERS_TASK").isSuccess()
     assertThat(result).task(":service-project:$COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK").isSuccess()
@@ -107,9 +114,11 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
+            "--configuration-cache",
             outputDirectory.toString(),
         )
         .build()
+    assertConfigurationCacheStored(result)
 
     assertThat(result).task(":$COMPUTE_SOURCE_FOLDERS_TASK").isSuccess()
     assertThat(result).task(":service-project:$COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK").isSuccess()
@@ -144,9 +153,11 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
+            "--configuration-cache",
             outputDirectory.toString(),
         )
         .build()
+    assertConfigurationCacheStored(result)
 
     assertThat(result).task(":$COMPUTE_SOURCE_FOLDERS_TASK").isSuccess()
     assertThat(result).task(":service-project:$COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK").isSuccess()
@@ -182,9 +193,11 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
+            "--configuration-cache",
             outputDirectory.path,
         )
         .build()
+    assertConfigurationCacheStored(result)
 
     assertThat(result).task(":$COMPUTE_SOURCE_FOLDERS_TASK").isSuccess()
     assertThat(result).task(":service-project:$COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK").isSuccess()
@@ -204,13 +217,15 @@ internal class ShowServiceChangePluginTest {
   ) {
     gitInit(root)
 
-    runner
+    val result = runner
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
+            "--configuration-cache",
             outputDirectory.toString(),
         )
         .build()
+    assertConfigurationCacheStored(result)
 
     val initialResourcesHash = getCommitHash(root)
 
@@ -224,6 +239,7 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
+            "--configuration-cache",
             outputDirectory.toString(),
             "--currentCommitRef=$deletedResourcesHash",
             "--previousCommitRef=$initialResourcesHash",
@@ -265,11 +281,13 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
+            "--configuration-cache",
             outputDirectory.toString(),
             "--currentCommitRef=$addedResourcesHash",
             "--previousCommitRef=$initialResourcesHash",
         )
         .build()
+    assertConfigurationCacheStored(result)
 
     assertThat(result).task(":$COMPUTE_SOURCE_FOLDERS_TASK").isSuccess()
     assertThat(result).task(":service-project:$COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK").isSuccess()
@@ -285,6 +303,10 @@ internal class ShowServiceChangePluginTest {
         .isDirectoryContaining("glob:**.status")
     assertThat(outputDirectory.resolve("service-project.status")).hasContent(project1.toString())
     assertThat(outputDirectory.resolve("service-project-2.status")).hasContent(project2.toString())
+  }
+
+  private fun assertConfigurationCacheStored(result: BuildResult) {
+    assertThat(result.output).contains("Configuration cache entry stored.")
   }
 
   private fun gitInit(root: File) {
