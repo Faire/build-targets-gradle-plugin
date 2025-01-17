@@ -37,7 +37,6 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
-            "--configuration-cache",
             outputDirectory.toString(),
             "--stacktrace",
         )
@@ -75,7 +74,6 @@ internal class ShowServiceChangePluginTest {
             SHOW_BUILD_TARGETS_TASK,
             "--stacktrace",
             "--outputDirectory",
-            "--configuration-cache",
             outputDirectory.toString(),
         )
         .build()
@@ -114,7 +112,6 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
-            "--configuration-cache",
             outputDirectory.toString(),
         )
         .build()
@@ -153,7 +150,6 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
-            "--configuration-cache",
             outputDirectory.toString(),
         )
         .build()
@@ -193,7 +189,6 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
-            "--configuration-cache",
             outputDirectory.path,
         )
         .build()
@@ -221,7 +216,6 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
-            "--configuration-cache",
             outputDirectory.toString(),
         )
         .build()
@@ -239,7 +233,6 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
-            "--configuration-cache",
             outputDirectory.toString(),
             "--currentCommitRef=$deletedResourcesHash",
             "--previousCommitRef=$initialResourcesHash",
@@ -281,7 +274,6 @@ internal class ShowServiceChangePluginTest {
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
-            "--configuration-cache",
             outputDirectory.toString(),
             "--currentCommitRef=$addedResourcesHash",
             "--previousCommitRef=$initialResourcesHash",
