@@ -61,7 +61,8 @@ internal abstract class ComputeDependentProjectsTask @Inject constructor(
         .flatMap { project ->
           val runtimeClasspath = project.configurations.named(configurationName.get()).get()
           runtimeClasspath.allDependencies.withType<ProjectDependency>()
-              .map { it.dependencyProject }
+              // RE: Deprecation: We don't have a better path at the moment and we've asked Gradle for support!
+              .map { @Suppress("DEPRECATION") it.dependencyProject }
         }
         .toSet()
 
