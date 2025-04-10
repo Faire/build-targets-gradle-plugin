@@ -1,4 +1,7 @@
-# built-targets
+# build-targets
+
+[![Gradle Plugin Portal Version](https://img.shields.io/gradle-plugin-portal/v/com.faire.build-targets)](https://plugins.gradle.org/plugin/com.faire.build-targets)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/Faire/build-targets-gradle-plugin/ci.yml)](https://github.com/Faire/build-targets-gradle-plugin/actions/workflows/ci.yml)
 
 Generate build "targets" based on Git changes between different git refs. This plugin generates a mapping of dependent projects. After this is generated 
 and cached, the code uses the project mapping to generate per-file mapping that can correlate against diffs.
@@ -35,4 +38,6 @@ A directory will be created at `outputDirectory` with a file for each project. T
 
 ## Releasing
 
-TODO
+1. Create and land a PR bumping the version in `build.gradle.kts`, e.g. https://github.com/Faire/build-targets-gradle-plugin/pull/74
+2. Create a [new release](https://github.com/Faire/build-targets-gradle-plugin/releases)
+3. Verify published in [Gradle portal](https://plugins.gradle.org/plugin/com.faire.build-targets) 
