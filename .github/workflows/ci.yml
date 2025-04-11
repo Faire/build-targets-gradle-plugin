@@ -12,6 +12,9 @@ permissions: read-all
 jobs:
   ci:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        gradle-version: ['current', '8.12.1', '7.6.4']
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -24,6 +27,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ matrix.gradle-version }}
 
       - name: Compile classes
         run: ./gradlew classes testClasses --continue
