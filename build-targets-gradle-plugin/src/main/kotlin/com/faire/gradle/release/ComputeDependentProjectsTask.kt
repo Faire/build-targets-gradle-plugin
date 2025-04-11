@@ -65,4 +65,3 @@ internal abstract class ComputeDependentProjectsTask @Inject constructor(
     }
   }
 }
-
