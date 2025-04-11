@@ -24,7 +24,7 @@ For all projects with `application` applied, each has a task `showServiceChangeS
 By running:
 
 ```shell
-./gradlew showServiceChangeStatus \
+./gradlew showBuildTargetsForChange \
     # Location where `${gradle_project_name}.status` files are created \
     --outputDirectory=build/application_statuses \
     # Commit ref to diff against, e.g. branch name, hash \

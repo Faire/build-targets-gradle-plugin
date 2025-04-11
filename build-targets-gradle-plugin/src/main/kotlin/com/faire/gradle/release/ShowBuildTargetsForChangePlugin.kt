@@ -19,7 +19,7 @@ class ShowBuildTargetsForChangePlugin : Plugin<Project> {
   override fun apply(project: Project) {
     val rootProject = project.rootProject
     val computeSourceFolders = if (project == rootProject) {
-      rootProject.tasks.register<ComputeSourceFoldersTask>(COMPUTE_SOURCE_FOLDERS_TASK)
+      rootProject.tasks.register<ComputeSourceFoldersTask>(COMPUTE_SOURCE_FOLDERS_TASK) {}
     } else {
       rootProject.tasks.named<ComputeSourceFoldersTask>(COMPUTE_SOURCE_FOLDERS_TASK)
     }
@@ -31,11 +31,16 @@ class ShowBuildTargetsForChangePlugin : Plugin<Project> {
         val computeRuntimeClasspathDependentProjects = project.tasks.register<ComputeDependentProjectsTask>(
             COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK,
         ) {
-          configurationName = "runtimeClasspath"
-        }
+          val runtimeClasspath = project.configurations.named("runtimeClasspath")
 
-        // For CLI usage
-        project.tasks.register<ComputeDependentProjectsTask>("computeDependentProjects")
+          rootComponent = runtimeClasspath.flatMap {
+            it.incoming.resolutionResult.rootComponent
+          }
+
+          rootVariant = runtimeClasspath.flatMap {
+            it.incoming.resolutionResult.rootVariant
+          }
+        }
 
         project.tasks.register<ShowBuildTargetsForChangeStatusTask>(SHOW_BUILD_TARGETS_TASK) {
           sourceFilesJsonFile = computeSourceFolders.flatMap { it.jsonFile }
