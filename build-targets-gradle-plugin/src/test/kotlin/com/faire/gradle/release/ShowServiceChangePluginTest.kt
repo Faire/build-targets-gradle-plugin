@@ -358,8 +358,6 @@ internal class ShowServiceChangePluginTest {
       @GradleProject.Root root: File,
       @TempDir outputDirectory: File,
   ) {
-    gitInit(root)
-
     // Enable includeTests in the configuration
     with(root.resolve("build.gradle.kts")) {
       appendText(
@@ -371,6 +369,8 @@ internal class ShowServiceChangePluginTest {
         """.trimIndent(),
       )
     }
+
+    gitInit(root)
 
     val result = runner
         .withArguments(
@@ -387,7 +387,7 @@ internal class ShowServiceChangePluginTest {
     assertThat(result).task(":service-project-2:$SHOW_BUILD_TARGETS_TASK").isSuccess()
     
     // Verify test dependency tasks are created for testRuntimeClasspath
-    assertThat(result).task(":service-project:computeTestRuntimeDependentProjects").isSuccess()
+    assertThat(result).task(":service-project:computeTestDependentProjects").isSuccess()
 
     assertProjectStatuses(outputDirectory, project1 = false, project2 = false)
     assertConfigurationCacheStored(result)
@@ -400,8 +400,6 @@ internal class ShowServiceChangePluginTest {
       @GradleProject.Root root: File,
       @TempDir outputDirectory: File,
   ) {
-    gitInit(root)
-
     // Enable includeTests in the configuration
     with(root.resolve("build.gradle.kts")) {
       appendText(
@@ -414,12 +412,14 @@ internal class ShowServiceChangePluginTest {
       )
     }
 
+    gitInit(root)
+
     val result = runner
         .withArguments(
             SHOW_BUILD_TARGETS_TASK,
             "--outputDirectory",
             outputDirectory.toString(),
-        )
+        ).forwardOutput()
         .build()
     assertConfigurationCacheStored(result)
 

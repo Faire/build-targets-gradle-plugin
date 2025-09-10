@@ -4,7 +4,6 @@
 package com.faire.gradle.release
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.plugins.jvm.JvmTestSuite
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.create
@@ -46,33 +45,39 @@ class ShowBuildTargetsForChangePlugin : Plugin<Project> {
           }
         }
 
-        project.tasks.register<ShowBuildTargetsForChangeStatusTask>(SHOW_BUILD_TARGETS_TASK) {
+        val showBuildTargetsTask = project.tasks.register<ShowBuildTargetsForChangeStatusTask>(SHOW_BUILD_TARGETS_TASK) {
           sourceFilesJsonFile = computeSourceFolders.flatMap { it.jsonFile }
           projectDependencyPathsFiles.from(
             computeRuntimeClasspathDependentProjects.flatMap { it.dependentProjectsListFile },
           )
+        }
 
-          // Add test dependencies if includeTests is enabled
-          val extension = rootProject.extensions.getByType(ShowBuildTargetsForChangeExtension::class.java)
-          if (extension.includeTests.getOrElse(false)) {
-            createTestDependencyTasks(rootProject, projectDependencyPathsFiles)
+        // Add test dependencies if includeTests is enabled
+        val extension = rootProject.extensions.getByType(ShowBuildTargetsForChangeExtension::class.java)
+        if (extension.includeTests.getOrElse(false)) {
+          project.allprojects {
+            val testDependencyTask = tasks.withType<ComputeDependentProjectsTask>()
+            showBuildTargetsTask.configure {
+              projectDependencyPathsFiles.from(testDependencyTask.map { it.dependentProjectsListFile })
+            }
           }
         }
       }
     } else {
-      rootProject.extensions.create("showBuildTargets", ShowBuildTargetsForChangeExtension::class)
+      val extension = rootProject.extensions.create("showBuildTargets", ShowBuildTargetsForChangeExtension::class)
+      rootProject.afterEvaluate {
+        if (extension.includeTests.getOrElse(false)) {
+          createTestDependencyTasks(rootProject)
+        }
+      }
     }
   }
 
-  private fun createTestDependencyTasks(
-    project: Project,
-    projectDependencyPathsFiles: ConfigurableFileCollection,
-  ) {
-    project.allprojects {
-      plugins.withId("jvm-test-suites") {
+  private fun createTestDependencyTasks(applicationProject: Project) {
+    applicationProject.allprojects {
+      project.plugins.withId("jvm-test-suite") {
         the<TestingExtension>().suites.withType<JvmTestSuite>() {
-          val testSuite = this@withType
-          createTestDependencyTaskForSuite(this@allprojects, testSuite, projectDependencyPathsFiles)
+          createTestDependencyTaskForSuite(project, this@withType)
         }
       }
     }
@@ -81,30 +86,25 @@ class ShowBuildTargetsForChangePlugin : Plugin<Project> {
   private fun createTestDependencyTaskForSuite(
     project: Project,
     testSuite: JvmTestSuite,
-    projectDependencyPathsFiles: ConfigurableFileCollection,
   ) {
     val testSuiteName = testSuite.name
     val testConfig = project.configurations.findByName(testSuite.sources.runtimeClasspathConfigurationName)
+    val taskName = "compute${testSuiteName.replaceFirstChar { it.uppercaseChar() }}DependentProjects"
+    //val existingTask = project.tasks.withType<ComputeDependentProjectsTask>().
 
     if (testConfig != null) {
-      val taskName = "compute${testSuiteName.replaceFirstChar { it.uppercaseChar() }}DependentProjects"
-      
-      // Use afterEvaluate to defer task registration
-      project.afterEvaluate {
-        val testDependencyTask = project.tasks.register<ComputeDependentProjectsTask>(taskName) {
-          rootComponent = project.providers.provider {
-            testConfig.incoming.resolutionResult.rootComponent.get()
-          }
-
-          rootVariant = project.providers.provider {
-            testConfig.incoming.resolutionResult.rootVariant.get()
-          }
-
-          dependentProjectsListFile.set(
-            project.layout.buildDirectory.file("release/${testSuiteName}DependentProjects.list"),
-          )
+      project.tasks.register<ComputeDependentProjectsTask>(taskName) {
+        rootComponent = project.providers.provider {
+          testConfig.incoming.resolutionResult.rootComponent.get()
         }
-        projectDependencyPathsFiles.from(testDependencyTask.flatMap { it.dependentProjectsListFile })
+
+        rootVariant = project.providers.provider {
+          testConfig.incoming.resolutionResult.rootVariant.get()
+        }
+
+        dependentProjectsListFile.set(
+          project.layout.buildDirectory.file("release/${testSuiteName}DependentProjects.list"),
+        )
       }
     }
   }
