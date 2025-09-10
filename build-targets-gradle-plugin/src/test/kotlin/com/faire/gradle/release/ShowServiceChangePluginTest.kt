@@ -351,6 +351,90 @@ internal class ShowServiceChangePluginTest {
 
   private fun getCommitHash(root: File): String = git(root, "show-ref", "-s")
 
+  @Test
+  @GradleProject("basic-service-hierarchy")
+  fun `execute with includeTests enabled creates test dependency tasks`(
+      @GradleProject.Runner runner: GradleRunner,
+      @GradleProject.Root root: File,
+      @TempDir outputDirectory: File,
+  ) {
+    gitInit(root)
+
+    // Enable includeTests in the configuration
+    with(root.resolve("build.gradle.kts")) {
+      appendText(
+          """
+          
+          showBuildTargets {
+            includeTests.set(true)
+          }
+        """.trimIndent(),
+      )
+    }
+
+    val result = runner
+        .withArguments(
+            SHOW_BUILD_TARGETS_TASK,
+            "--outputDirectory",
+            outputDirectory.toString(),
+            "--stacktrace",
+        )
+        .build()
+
+    assertThat(result).task(":service-project:$COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK").isSuccess()
+    assertThat(result).task(":service-project:$SHOW_BUILD_TARGETS_TASK").isSuccess()
+    assertThat(result).task(":service-project-2:$COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK").isSuccess()
+    assertThat(result).task(":service-project-2:$SHOW_BUILD_TARGETS_TASK").isSuccess()
+    
+    // Verify test dependency tasks are created for testRuntimeClasspath
+    assertThat(result).task(":service-project:computeTestRuntimeDependentProjects").isSuccess()
+
+    assertProjectStatuses(outputDirectory, project1 = false, project2 = false)
+    assertConfigurationCacheStored(result)
+  }
+
+  @Test
+  @GradleProject("basic-service-hierarchy")
+  fun `execute with includeTests enabled detects changes in test dependencies`(
+      @GradleProject.Runner runner: GradleRunner,
+      @GradleProject.Root root: File,
+      @TempDir outputDirectory: File,
+  ) {
+    gitInit(root)
+
+    // Enable includeTests in the configuration
+    with(root.resolve("build.gradle.kts")) {
+      appendText(
+          """
+          
+          showBuildTargets {
+            includeTests.set(true)
+          }
+        """.trimIndent(),
+      )
+    }
+
+    val result = runner
+        .withArguments(
+            SHOW_BUILD_TARGETS_TASK,
+            "--outputDirectory",
+            outputDirectory.toString(),
+        )
+        .build()
+    assertConfigurationCacheStored(result)
+
+    assertProjectStatuses(outputDirectory, project1 = false, project2 = false)
+
+    // Change the test-dependency-project that the serviceTest depends on
+    updateAndCommitNewFileToProject(root, "test-dependency-project")
+
+    val secondResult = runner.build()
+    assertThat(secondResult).task(":service-project:$SHOW_BUILD_TARGETS_TASK").isSuccess()
+
+    // Should detect changes because test-dependency-project is a test dependency
+    assertProjectStatuses(outputDirectory, project1 = true, project2 = false)
+  }
+
   private fun git(root: File, vararg command: String): String {
     val process = ProcessBuilder()
         .directory(root)

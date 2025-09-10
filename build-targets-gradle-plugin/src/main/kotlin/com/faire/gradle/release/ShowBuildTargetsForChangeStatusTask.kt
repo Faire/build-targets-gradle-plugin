@@ -3,6 +3,7 @@ package com.faire.gradle.release
 import com.google.gson.reflect.TypeToken
 import org.gradle.api.DefaultTask
 import org.gradle.api.Transformer
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -10,6 +11,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
@@ -62,9 +64,9 @@ internal abstract class ShowBuildTargetsForChangeStatusTask @Inject constructor(
   @PathSensitive(PathSensitivity.RELATIVE)
   val sourceFilesJsonFile: RegularFileProperty = objects.fileProperty()
 
-  @InputFile
+  @InputFiles
   @PathSensitive(PathSensitivity.RELATIVE)
-  val projectDependencyPathsFile: RegularFileProperty = objects.fileProperty()
+  val projectDependencyPathsFiles: ConfigurableFileCollection = objects.fileCollection()
 
   // Note: This uses `Property<String>` rather than `DirectoryProperty` as it will default resolve to be a directory
   //       relative to `project`.
@@ -96,7 +98,7 @@ internal abstract class ShowBuildTargetsForChangeStatusTask @Inject constructor(
   fun execute() {
     val projectToSourceDirectories = readSourceFilesPerProjectPath()
 
-    val projectDependencyPaths = projectDependencyPathsFile.asFile.get().readLines().toSet()
+    val projectDependencyPaths = projectDependencyPathsFiles.flatMap { it.readLines() }.toSet()
 
     val pathsToDiff = buildSet {
       addAll(

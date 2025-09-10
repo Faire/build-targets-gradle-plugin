@@ -6,4 +6,6 @@ plugins {
 
 dependencies {
   implementation(project(":dependency-project"))
+
+  testImplementation(project(":test-dependency-project"))
 }
