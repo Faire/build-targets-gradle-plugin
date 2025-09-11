@@ -4,7 +4,7 @@ assertj = "3.27.4"
 
 detekt = "1.23.6"
 
-gradle-better-testing = "0.0.5"
+gradle-better-testing = "0.0.6"
 
 junit-jupiter = "5.11.4"
 junit-platform = "1.10.2"
