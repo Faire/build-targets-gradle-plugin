@@ -2,6 +2,7 @@
 @file:Suppress("NoUnusedImports")
 
 package com.faire.gradle.release
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.jvm.JvmTestSuite
@@ -45,7 +46,7 @@ class ShowBuildTargetsForChangePlugin : Plugin<Project> {
           }
         }
 
-        val showBuildTargetsTask = project.tasks.register<ShowBuildTargetsForChangeStatusTask>(SHOW_BUILD_TARGETS_TASK) {
+        val showTargetsTask = project.tasks.register<ShowBuildTargetsForChangeStatusTask>(SHOW_BUILD_TARGETS_TASK) {
           sourceFilesJsonFile = computeSourceFolders.flatMap { it.jsonFile }
           projectDependencyPathsFiles.from(
             computeRuntimeClasspathDependentProjects.flatMap { it.dependentProjectsListFile },
@@ -57,7 +58,7 @@ class ShowBuildTargetsForChangePlugin : Plugin<Project> {
         if (extension.includeTests.getOrElse(false)) {
           project.allprojects {
             val testDependencyTask = tasks.withType<ComputeDependentProjectsTask>()
-            showBuildTargetsTask.configure {
+            showTargetsTask.configure {
               projectDependencyPathsFiles.from(testDependencyTask.map { it.dependentProjectsListFile })
             }
           }
@@ -76,7 +77,7 @@ class ShowBuildTargetsForChangePlugin : Plugin<Project> {
   private fun createTestDependencyTasks(applicationProject: Project) {
     applicationProject.allprojects {
       project.plugins.withId("jvm-test-suite") {
-        the<TestingExtension>().suites.withType<JvmTestSuite>() {
+        the<TestingExtension>().suites.withType<JvmTestSuite> {
           createTestDependencyTaskForSuite(project, this@withType)
         }
       }
@@ -90,7 +91,7 @@ class ShowBuildTargetsForChangePlugin : Plugin<Project> {
     val testSuiteName = testSuite.name
     val testConfig = project.configurations.findByName(testSuite.sources.runtimeClasspathConfigurationName)
     val taskName = "compute${testSuiteName.replaceFirstChar { it.uppercaseChar() }}DependentProjects"
-    //val existingTask = project.tasks.withType<ComputeDependentProjectsTask>().
+    // val existingTask = project.tasks.withType<ComputeDependentProjectsTask>().
 
     if (testConfig != null) {
       project.tasks.register<ComputeDependentProjectsTask>(taskName) {

@@ -385,7 +385,7 @@ internal class ShowServiceChangePluginTest {
     assertThat(result).task(":service-project:$SHOW_BUILD_TARGETS_TASK").isSuccess()
     assertThat(result).task(":service-project-2:$COMPUTE_RUNTIME_CLASSPATH_DEPENDENT_PROJECTS_TASK").isSuccess()
     assertThat(result).task(":service-project-2:$SHOW_BUILD_TARGETS_TASK").isSuccess()
-    
+
     // Verify test dependency tasks are created for testRuntimeClasspath
     assertThat(result).task(":service-project:computeTestDependentProjects").isSuccess()
 
