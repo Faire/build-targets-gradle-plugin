@@ -91,8 +91,6 @@ class ShowBuildTargetsForChangePlugin : Plugin<Project> {
     val testSuiteName = testSuite.name
     val testConfig = project.configurations.findByName(testSuite.sources.runtimeClasspathConfigurationName)
     val taskName = "compute${testSuiteName.replaceFirstChar { it.uppercaseChar() }}DependentProjects"
-    // val existingTask = project.tasks.withType<ComputeDependentProjectsTask>().
-
     if (testConfig != null) {
       project.tasks.register<ComputeDependentProjectsTask>(taskName) {
         rootComponent = project.providers.provider {
