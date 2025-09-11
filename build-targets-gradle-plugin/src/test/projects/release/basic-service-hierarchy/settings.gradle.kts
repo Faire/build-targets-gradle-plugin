@@ -6,4 +6,5 @@ include(
   ":emptydir:lib-project",
   ":service-project",
   ":service-project-2",
+  ":test-dependency-project",
 )

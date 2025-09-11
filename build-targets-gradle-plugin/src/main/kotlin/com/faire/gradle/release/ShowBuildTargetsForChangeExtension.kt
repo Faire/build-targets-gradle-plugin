@@ -1,7 +1,9 @@
 package com.faire.gradle.release
 
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
+import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.setProperty
 import javax.inject.Inject
 
@@ -17,4 +19,9 @@ open class ShowBuildTargetsForChangeExtension @Inject constructor(
    * Patterns are applied to the full path of the source sets.
    */
   val sourceSetPathExcludePatterns: SetProperty<String> = objects.setProperty()
+
+  /**
+   * Whether to include test targets in the build targets analysis.
+   */
+  val includeTests: Property<Boolean> = objects.property<Boolean>().convention(false)
 }
