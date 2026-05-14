@@ -22,6 +22,7 @@ import org.gradle.kotlin.dsl.property
 import org.gradle.process.ExecOperations
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.file.Path
 import javax.inject.Inject
 
 /**
@@ -111,28 +112,46 @@ internal abstract class ShowBuildTargetsForChangeStatusTask @Inject constructor(
       addAll(projectToSourceDirectories.getValue(currentProjectPath.get()))
     }
 
-    val diffsFound = ByteArrayOutputStream().use { stdout ->
-      // Executes git and shows a single line if and only if `pathsToDiff` files have changed
-      execOperations.exec {
-        commandLine(
-            "git",
-            "log",
-            "--oneline",
-            "${previousCommitRef.get()}..${currentCommitRef.get()}",
-            "--", // add paths separator
-        )
-
-        args(pathsToDiff)
-
-        standardOutput = stdout
-      }.assertNormalExitValue()
-
-      stdout.toString().isNotBlank()
-    }
+    // We previously invoked `git log -- <every path>` with `pathsToDiff` as argv, which blew past OS argv limits on
+    // large modules. Instead we list every changed file in the range once (no path arguments) and intersect in-process.
+    val diffsFound = anyChangedFileMatches(pathsToDiff)
 
     val outputFile = outputFile.get()
     outputFile.parentFile.mkdirs()
     outputFile.writeText("$diffsFound")
+  }
+
+  private fun anyChangedFileMatches(pathsToDiff: Set<File>): Boolean {
+    if (pathsToDiff.isEmpty()) {
+      return false
+    }
+
+    val targets: Set<Path> = pathsToDiff.mapTo(mutableSetOf()) { it.toPath().toAbsolutePath().normalize() }
+    val repoRoot = File(rootProjectPath.get()).toPath().toAbsolutePath().normalize()
+
+    return listChangedFiles().any { relativePath ->
+      val changed = repoRoot.resolve(relativePath).normalize()
+      targets.any { target -> changed.startsWith(target) }
+    }
+  }
+
+  private fun listChangedFiles(): Sequence<String> {
+    val stdout = ByteArrayOutputStream().use { out ->
+      execOperations.exec {
+        commandLine(
+            "git",
+            "diff",
+            "--name-only",
+            "-z",
+            "${previousCommitRef.get()}..${currentCommitRef.get()}",
+        )
+        standardOutput = out
+      }.assertNormalExitValue()
+      out.toByteArray()
+    }
+    return String(stdout, Charsets.UTF_8)
+        .splitToSequence('\u0000')
+        .filter { it.isNotEmpty() }
   }
 
   private fun readSourceFilesPerProjectPath(): Map<String, Set<File>> {
