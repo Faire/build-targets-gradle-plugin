@@ -9,6 +9,11 @@ and cached, the code uses the project mapping to generate per-file mapping that 
 Currently, this plugin works against `application` projects. 
 
 
+## Support notice
+
+Faire has migrated its backend repo off Gradle, so this plugin will no longer be receiving new features. 
+
+
 ## Usage
 
 In the root `build.gradle.kts` file, apply the plugin:
