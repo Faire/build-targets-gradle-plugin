@@ -6,8 +6,8 @@ detekt = "1.23.6"
 
 gradle-better-testing = "0.0.6"
 
-junit-jupiter = "5.11.4"
-junit-platform = "1.10.2"
+junit-jupiter = "5.13.4"
+junit-platform = "1.13.4"
 
 kotlin = "2.2.21"
 
